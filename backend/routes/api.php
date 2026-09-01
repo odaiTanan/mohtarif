@@ -23,20 +23,6 @@ Route::middleware(['auth:sanctum'])->prefix('dashboard')->controller(ManagementC
     Route::middleware('permission:manage-content')->get('lookups', 'lookups');
 
     Route::middleware('permission:manage-users')->group(function (): void {
-        Route::get('academies', 'academies');
-        Route::post('academies', 'storeAcademy');
-        Route::put('academies/{academy}', 'updateAcademy');
-        Route::delete('academies/{academy}', 'destroyAcademy');
-
-        Route::get('departments', 'departments');
-        Route::post('departments', 'storeDepartment');
-        Route::put('departments/{department}', 'updateDepartment');
-        Route::delete('departments/{department}', 'destroyDepartment');
-
-        Route::post('competencies', 'storeCompetency');
-        Route::put('competencies/{competency}', 'updateCompetency');
-        Route::delete('competencies/{competency}', 'destroyCompetency');
-
         Route::get('questions', 'questions');
         Route::get('questions/{question}', 'showQuestion');
         Route::post('questions', 'storeQuestion');
@@ -50,12 +36,7 @@ Route::middleware(['auth:sanctum'])->prefix('dashboard')->controller(ManagementC
     });
 
     Route::middleware('permission:manage-content')->group(function (): void {
-        Route::get('competencies', 'competencies');
         Route::get('training-plans', 'trainingPlans');
-        Route::get('courses', 'courses');
-        Route::post('courses', 'storeCourse');
-        Route::put('courses/{course}', 'updateCourse');
-        Route::delete('courses/{course}', 'destroyCourse');
     });
 
     Route::middleware('permission:take-assessment')->get('assessments', 'assessments');
