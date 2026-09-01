@@ -1,9 +1,9 @@
 import { useLogout } from '../hooks/useLogout'
-import { useAuthStore } from '../store/auth'
+import { useAuth } from '../hooks/useAuth'
 import { Link } from 'react-router-dom'
 
 export default function DashboardPage() {
-  const user = useAuthStore((state) => state.user)
+  const { user } = useAuth()
   const logoutMutation = useLogout()
 
   return (

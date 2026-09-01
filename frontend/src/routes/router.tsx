@@ -1,22 +1,15 @@
-import { createBrowserRouter, Navigate, useParams } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import AppLayout from '../components/AppLayout'
 import DashboardLayout from '../components/layout/DashboardLayout'
-import { AssessmentScreen } from '../components/Assessment/AssessmentScreen'
-import AcademiesPage from '../pages/dashboard/AcademiesPage'
-import AllResultsPage from '../pages/dashboard/AllResultsPage'
-import AssessmentResultsPage from '../pages/dashboard/AssessmentResultsPage'
-import AuditLogsPage from '../pages/dashboard/AuditLogsPage'
-import CertificatesPage from '../pages/dashboard/CertificatesPage'
-import CompetenciesPage from '../pages/dashboard/CompetenciesPage'
-import CoursesPage from '../pages/dashboard/CoursesPage'
-import DepartmentsPage from '../pages/dashboard/DepartmentsPage'
 import DashboardPage from '../pages/DashboardPage'
 import ForbiddenPage from '../pages/ForbiddenPage'
 import LoginPage from '../pages/LoginPage'
-import AssessmentsPage from '../pages/dashboard/AssessmentsPage'
-import QuestionBankPage from '../pages/dashboard/QuestionBankPage'
-import TrainingPlansPage from '../pages/dashboard/TrainingPlansPage'
+import AdminLoginPage from '../pages/AdminLoginPage'
+import TeacherLoginPage from '../pages/TeacherLoginPage'
+import StudentLoginPage from '../pages/StudentLoginPage'
+import StudentsPage from '../pages/dashboard/StudentsPage'
+import TeachersPage from '../pages/dashboard/TeachersPage'
 import { Authorize } from './Authorize'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -34,6 +27,18 @@ export const router = createBrowserRouter([
         element: <LoginPage />,
       },
       {
+        path: 'login/admin',
+        element: <AdminLoginPage />,
+      },
+      {
+        path: 'login/teacher',
+        element: <TeacherLoginPage />,
+      },
+      {
+        path: 'login/student',
+        element: <StudentLoginPage />,
+      },
+      {
         path: '403',
         element: <ForbiddenPage />,
       },
@@ -42,7 +47,7 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer', 'Candidate', 'Employee']} allowedPermissions={['view-dashboard']}>
+              <Authorize allowedRoles={['Admin', 'Teacher', 'Student']} allowedPermissions={['view-dashboard']}>
                 <DashboardPage />
               </Authorize>
             </DashboardLayout>
@@ -50,144 +55,24 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'dashboard/academies',
+        path: 'dashboard/students',
         element: (
           <ProtectedRoute>
             <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager']}>
-                <AcademiesPage />
+              <Authorize allowedRoles={['Admin']} allowedPermissions={['manage-users']}>
+                <StudentsPage />
               </Authorize>
             </DashboardLayout>
           </ProtectedRoute>
         ),
       },
       {
-        path: 'dashboard/departments',
+        path: 'dashboard/teachers',
         element: (
           <ProtectedRoute>
             <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager']}>
-                <DepartmentsPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/competencies',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer']}>
-                <CompetenciesPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/questions',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager']}>
-                <QuestionBankPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/assessments',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer', 'Employee', 'Candidate']}>
-                <AssessmentsPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/assessments/:id/results',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer']}>
-                <AssessmentResultsPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/results',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer']}>
-                <AllResultsPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/training-plans',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer']}>
-                <TrainingPlansPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/courses',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer']}>
-                <CoursesPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/certificates',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer', 'Candidate', 'Employee']}>
-                <CertificatesPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'dashboard/audit-logs',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator']}>
-                <AuditLogsPage />
-              </Authorize>
-            </DashboardLayout>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'assessments/:assessmentId',
-        element: (
-          <ProtectedRoute>
-            <DashboardLayout>
-              <Authorize allowedRoles={['System Administrator', 'HR Manager', 'Trainer', 'Candidate', 'Employee']}>
-                <AssessmentRoute />
+              <Authorize allowedRoles={['Admin']} allowedPermissions={['manage-users']}>
+                <TeachersPage />
               </Authorize>
             </DashboardLayout>
           </ProtectedRoute>
@@ -196,9 +81,3 @@ export const router = createBrowserRouter([
     ],
   },
 ])
-
-function AssessmentRoute() {
-  const { assessmentId } = useParams()
-
-  return <AssessmentScreen assessmentId={Number(assessmentId ?? 0)} />
-}

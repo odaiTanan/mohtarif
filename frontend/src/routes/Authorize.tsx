@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 
-import { useAuthStore } from '../store/auth'
+import { useAuth } from '../hooks/useAuth'
 
 interface AuthorizeProps {
   allowedRoles?: string[]
@@ -10,7 +10,7 @@ interface AuthorizeProps {
 }
 
 export function Authorize({ allowedRoles = [], allowedPermissions = [], children }: AuthorizeProps) {
-  const user = useAuthStore((state) => state.user)
+  const { user } = useAuth()
 
   if (!allowedRoles.length && !allowedPermissions.length) {
     return children

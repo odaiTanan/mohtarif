@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
+import Cookies from 'js-cookie'
 
 import { fetchSessionRequest } from '../api/auth'
-import { useAuthStore } from '../store/auth'
+
+const COOKIE_USER = 'user'
 
 export function useUserSession(enabled = true) {
   return useQuery({
     queryKey: ['auth', 'session'],
     queryFn: async () => {
       const user = await fetchSessionRequest()
-      useAuthStore.getState().setUser(user)
+      Cookies.set(COOKIE_USER, JSON.stringify(user), { expires: 7, secure: true, sameSite: 'strict' })
 
       return user
     },

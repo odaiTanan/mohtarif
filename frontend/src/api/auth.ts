@@ -5,6 +5,7 @@ import type { AuthSession, AuthUser } from '../types/auth'
 export interface LoginPayload {
   email: string
   password: string
+  role?: 'admin' | 'teacher' | 'student'
 }
 
 interface ApiAuthResponse {

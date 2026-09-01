@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
-
-import { useAuthStore } from '../../store/auth'
+import Cookies from 'js-cookie'
 import { jest } from '@jest/globals'
 
 const useUserSessionMock = jest.fn()
@@ -15,7 +14,8 @@ const { ProtectedRoute } = await import('../ProtectedRoute')
 
 describe('ProtectedRoute', () => {
   beforeEach(() => {
-    useAuthStore.getState().clearSession()
+    Cookies.remove('access_token')
+    Cookies.remove('user')
   })
 
   it('shows loading state while restoring the session', () => {
@@ -37,16 +37,14 @@ describe('ProtectedRoute', () => {
   })
 
   it('renders children when the auth store already has a token', () => {
-    useAuthStore.setState({
-      user: {
-        id: 1,
-        name: 'Admin',
-        email: 'admin@example.com',
-        roles: [{ id: 1, name: 'System Administrator', permissions: ['view-dashboard'] }],
-        permissions: ['view-dashboard'],
-      },
-      accessToken: 'token',
-    })
+    Cookies.set('access_token', 'token')
+    Cookies.set('user', JSON.stringify({
+      id: 1,
+      name: 'Admin',
+      email: 'admin@example.com',
+      roles: [{ id: 1, name: 'System Administrator', permissions: ['view-dashboard'] }],
+      permissions: ['view-dashboard'],
+    }))
 
     useUserSessionMock.mockReturnValue({
       isLoading: false,

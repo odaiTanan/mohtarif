@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 
-import { useAuthStore } from '../store/auth'
+import { useAuth } from '../hooks/useAuth'
 import { useUserSession } from '../hooks/useUserSession'
 
 interface ProtectedRouteProps {
@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const accessToken = useAuthStore((state) => state.accessToken)
+  const { accessToken } = useAuth()
   const sessionQuery = useUserSession(true)
 
   if (sessionQuery.isLoading) {

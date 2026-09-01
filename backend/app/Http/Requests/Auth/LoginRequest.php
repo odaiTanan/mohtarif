@@ -16,6 +16,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email:rfc'],
             'password' => ['required', 'string'],
+            'role' => ['nullable', 'string', 'in:admin,teacher,student'],
         ];
     }
 }

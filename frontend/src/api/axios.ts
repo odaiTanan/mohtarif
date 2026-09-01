@@ -1,8 +1,11 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
+import Cookies from 'js-cookie'
 
 import { API_ROUTES } from './routes'
-import { useAuthStore } from '../store/auth'
 import type { AuthSession } from '../types/auth'
+
+const COOKIE_ACCESS_TOKEN = 'access_token'
+const COOKIE_USER = 'user'
 
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retry?: boolean
@@ -12,7 +15,7 @@ type RetryableRequestConfig = InternalAxiosRequestConfig & {
 type RedirectHandler = (path: string) => void
 
 const viteEnv = (import.meta as ImportMeta & { env?: Record<string, string> }).env ?? {}
-const baseURL = viteEnv.VITE_API_BASE_URL ?? 'https://academy.najizgo.com/api'
+const baseURL = viteEnv.VITE_API_BASE_URL ?? 'http://localhost:8000/api'
 
 const authApi = axios.create({
   baseURL,
@@ -59,7 +62,7 @@ function processQueue(error: unknown, token: string | null): void {
 }
 
 authApi.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken
+  const token = Cookies.get(COOKIE_ACCESS_TOKEN)
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -105,7 +108,8 @@ authApi.interceptors.response.use(
       } as RetryableRequestConfig)
 
       const session = normalizeAuthSession(refreshResponse.data)
-      useAuthStore.getState().setSession(session)
+      Cookies.set(COOKIE_ACCESS_TOKEN, session.accessToken, { expires: 7, secure: true, sameSite: 'strict' })
+      Cookies.set(COOKIE_USER, JSON.stringify(session.user), { expires: 7, secure: true, sameSite: 'strict' })
 
       processQueue(null, session.accessToken)
 
@@ -114,7 +118,8 @@ authApi.interceptors.response.use(
       return authApi(originalRequest)
     } catch (refreshError) {
       processQueue(refreshError, null)
-      useAuthStore.getState().clearSession()
+      Cookies.remove(COOKIE_ACCESS_TOKEN)
+      Cookies.remove(COOKIE_USER)
       redirectHandler?.('/login')
 
       return Promise.reject(refreshError)

@@ -20,6 +20,8 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): JsonResponse
     {
+        $requestedRole = $request->string('role')->toString();
+        
         $user = User::query()
             ->withAuthorizationData()
             ->where('email', $request->string('email')->toString())
@@ -28,6 +30,13 @@ class AuthController extends Controller
         if (! $user || ! Hash::check($request->string('password')->toString(), $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        // Verify role if provided
+        if ($requestedRole && ! $user->hasRole(ucfirst($requestedRole))) {
+            throw ValidationException::withMessages([
+                'email' => ['The user does not have the requested role.'],
             ]);
         }
 
