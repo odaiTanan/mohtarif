@@ -14,6 +14,8 @@ export const API_ROUTES = {
     ASSESSMENTS: '/dashboard/assessments',
     TRAINING_PLANS: '/dashboard/training-plans',
     COURSES: '/dashboard/courses',
+    COURSE_CATEGORIES: '/dashboard/course-categories',
+    COURSE_INSTRUCTORS: '/dashboard/course-instructors',
     CERTIFICATES: '/dashboard/certificates',
     AUDIT_LOGS: '/dashboard/audit-logs',
   },

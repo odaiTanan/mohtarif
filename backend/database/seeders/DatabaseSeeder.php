@@ -100,5 +100,9 @@ class DatabaseSeeder extends Seeder
             ],
         );
         $student->syncRoles([$studentRole]);
+
+        $this->call(CourseCategorySeeder::class);
+        $this->call(UserManagementSeeder::class);
+        $this->call(CourseSeeder::class);
     }
 }

@@ -26,6 +26,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'avatar_url',
+        'bio',
+        'specialty',
+        'academic_id',
+        'teaching_category_id',
+        'status',
     ];
 
     /**
@@ -67,5 +74,10 @@ class User extends Authenticatable
     public function trainingPlans(): HasMany
     {
         return $this->hasMany(TrainingPlan::class);
+    }
+
+    public function teachingCategory()
+    {
+        return $this->belongsTo(CourseCategory::class, 'teaching_category_id');
     }
 }

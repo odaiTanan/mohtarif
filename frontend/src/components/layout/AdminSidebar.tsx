@@ -12,6 +12,19 @@ export default function AdminSidebar() {
         <ul className="space-y-2">
           <li>
             <NavLink
+              to="/dashboard/courses"
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                  isActive ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-50'
+                }`
+              }
+            >
+              <span className="text-lg">📚</span>
+              <span className="font-medium">الكورسات</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
               to="/dashboard"
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-3 rounded-xl transition ${

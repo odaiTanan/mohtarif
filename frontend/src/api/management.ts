@@ -97,17 +97,24 @@ export interface AssessmentRecord {
 
 export interface CourseRecord {
   id: number
-  academy_id?: number | null
-  code: string
-  name: string
+  title: string
   description: string | null
-  duration_minutes: number | null
-  difficulty: string
-  is_active: boolean
-  academy?: { id: number; name: string }
-  competencies_count?: number
+  category_id: number
+  category?: { id: number; name: string }
+  instructor_id: number
+  instructor?: { id: number; name: string; email: string; avatar_url: string | null }
+  status: 'draft' | 'published' | 'archived'
+  level: 'beginner' | 'intermediate' | 'advanced'
+  max_students: number | null
+  price: string | number
+  thumbnail_url: string | null
+  course_type: 'technical' | 'craft'
+  enrollments_count?: number
   updated_at?: string
 }
+
+export interface CourseCategoryRecord { id: number; name: string; slug: string; description?: string | null; courses_count?: number }
+export interface CourseInstructorRecord { id: number; name: string; email: string; avatar_url: string | null }
 
 export interface TrainingPlanRecord {
   id: number
@@ -260,6 +267,26 @@ export function updateCourse(id: number, payload: Partial<CourseRecord>) {
 
 export function deleteCourse(id: number) {
   return axiosInstance.delete(`${API_ROUTES.MANAGEMENT.COURSES}/${id}`)
+}
+
+export function fetchCourseInstructors(categoryId?: number) {
+  return axiosInstance.get<{ data: CourseInstructorRecord[] }>(API_ROUTES.MANAGEMENT.COURSE_INSTRUCTORS, { params: categoryId ? { category_id: categoryId } : {} }).then((r) => r.data.data)
+}
+
+export function fetchCourseCategories() {
+  return axiosInstance.get<{ data: Array<CourseCategoryRecord & { description: string | null; courses_count: number }> }>(API_ROUTES.MANAGEMENT.COURSE_CATEGORIES).then((r) => r.data.data)
+}
+
+export function createCourseCategory(payload: { name: string; description?: string }) {
+  return axiosInstance.post(API_ROUTES.MANAGEMENT.COURSE_CATEGORIES, payload).then((r) => r.data.data)
+}
+
+export function updateCourseCategory(id: number, payload: { name: string; description?: string }) {
+  return axiosInstance.put(`${API_ROUTES.MANAGEMENT.COURSE_CATEGORIES}/${id}`, payload).then((r) => r.data.data)
+}
+
+export function deleteCourseCategory(id: number) {
+  return axiosInstance.delete(`${API_ROUTES.MANAGEMENT.COURSE_CATEGORIES}/${id}`)
 }
 
 export function fetchCertificates() {

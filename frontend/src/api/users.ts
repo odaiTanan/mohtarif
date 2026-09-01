@@ -4,6 +4,13 @@ export interface User {
   id: number
   name: string
   email: string
+  phone: string | null
+  avatar_url: string | null
+  bio: string | null
+  specialty: string | null
+  academic_id: string | null
+  teaching_category_id: number | null
+  status: 'active' | 'inactive'
   roles: { id: number; name: string }[]
   permissions: string[]
   created_at: string
@@ -16,6 +23,13 @@ export interface CreateUserPayload {
   password: string
   password_confirmation: string
   role: 'admin' | 'teacher' | 'student'
+  phone?: string
+  avatar_url?: string
+  bio?: string
+  specialty?: string
+  academic_id?: string
+    teaching_category_id?: number
+  status?: 'active' | 'inactive'
 }
 
 export interface UpdateUserPayload {
@@ -24,6 +38,13 @@ export interface UpdateUserPayload {
   password?: string
   password_confirmation?: string
   role?: 'admin' | 'teacher' | 'student'
+  phone?: string
+  avatar_url?: string
+  bio?: string
+  specialty?: string
+  academic_id?: string
+    teaching_category_id?: number
+  status?: 'active' | 'inactive'
 }
 
 export async function fetchUsers(role?: 'admin' | 'teacher' | 'student'): Promise<User[]> {

@@ -10,6 +10,7 @@ import TeacherLoginPage from '../pages/TeacherLoginPage'
 import StudentLoginPage from '../pages/StudentLoginPage'
 import StudentsPage from '../pages/dashboard/StudentsPage'
 import TeachersPage from '../pages/dashboard/TeachersPage'
+import CoursesPage from '../pages/dashboard/CoursesPage'
 import { Authorize } from './Authorize'
 import { ProtectedRoute } from './ProtectedRoute'
 
@@ -73,6 +74,18 @@ export const router = createBrowserRouter([
             <DashboardLayout>
               <Authorize allowedRoles={['Admin']} allowedPermissions={['manage-users']}>
                 <TeachersPage />
+              </Authorize>
+            </DashboardLayout>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'dashboard/courses',
+        element: (
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Authorize allowedRoles={['Admin']} allowedPermissions={['manage-content']}>
+                <CoursesPage />
               </Authorize>
             </DashboardLayout>
           </ProtectedRoute>
