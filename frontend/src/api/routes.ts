@@ -19,6 +19,15 @@ export const API_ROUTES = {
     CERTIFICATES: '/dashboard/certificates',
     AUDIT_LOGS: '/dashboard/audit-logs',
   },
+  TEACHER: {
+    COURSES: '/teacher/courses',
+    COURSE: (courseId: number) => `/teacher/courses/${courseId}`,
+    MEDIA: (courseId: number) => `/teacher/courses/${courseId}/media`,
+    CONTENT_MEDIA: (courseId: number, type: string, contentId: number) => `/teacher/courses/${courseId}/${type}/${contentId}/media`,
+    LESSONS: (courseId: number) => `/teacher/courses/${courseId}/lessons`,
+    WORKSHOPS: (courseId: number) => `/teacher/courses/${courseId}/workshops`,
+    LECTURES: (courseId: number) => `/teacher/courses/${courseId}/lectures`,
+  },
   ASSESSMENTS: {
     BY_ID: (assessmentId: number) => `/assessments/${assessmentId}`,
     AUTO_SAVE: '/assessments/auto-save',

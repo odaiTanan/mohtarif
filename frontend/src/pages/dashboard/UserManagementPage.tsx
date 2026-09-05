@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Pencil, Trash2, X, GraduationCap, Users } from 'lucide-react'
 
-import { createUser, deleteUser, fetchUsers, updateUser, type User } from '../../api/users'
+import { createUser, deleteUser, fetchUsers, updateUser, uploadUserAvatar, type User } from '../../api/users'
 import { fetchCourseCategories } from '../../api/management'
 
 type ManagedRole = 'teacher' | 'student'
@@ -12,7 +12,7 @@ type FormState = {
   password: string
   password_confirmation: string
   phone: string
-  avatar_url: string
+  avatar_file: File | null
   bio: string
   specialty: string
   academic_id: string
@@ -26,7 +26,7 @@ const emptyForm: FormState = {
   password: '',
   password_confirmation: '',
   phone: '',
-  avatar_url: '',
+  avatar_file: null,
   bio: '',
   specialty: '',
   academic_id: '',
@@ -40,7 +40,6 @@ const formFields: ReadonlyArray<{ field: keyof FormState; label: string; isPassw
   { field: 'phone', label: 'رقم الهاتف' },
   { field: 'academic_id', label: 'الرقم الأكاديمي' },
   { field: 'specialty', label: 'التخصص' },
-  { field: 'avatar_url', label: 'رابط الصورة' },
   { field: 'password', label: 'كلمة المرور', isPassword: true },
   { field: 'password_confirmation', label: 'تأكيد كلمة المرور', isPassword: true },
 ]
@@ -60,20 +59,18 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
   const closeForm = () => { setEditing(null); setForm(emptyForm); setIsFormOpen(false) }
 
   const saveMutation = useMutation({
-    mutationFn: () =>
-      editing
-        ? updateUser(editing.id, {
-            ...form,
-            teaching_category_id: form.teaching_category_id ? Number(form.teaching_category_id) : undefined,
-            password: form.password || undefined,
-            password_confirmation: form.password_confirmation || undefined,
-            role,
-          })
-        : createUser({
-            ...form,
-            teaching_category_id: form.teaching_category_id ? Number(form.teaching_category_id) : undefined,
-            role,
-          }),
+    mutationFn: async () => {
+      const { avatar_file, ...fields } = form
+      const payload = {
+        ...fields,
+        teaching_category_id: form.teaching_category_id ? Number(form.teaching_category_id) : undefined,
+        password: form.password || undefined,
+        password_confirmation: form.password_confirmation || undefined,
+        role,
+      }
+      const savedUser = editing ? await updateUser(editing.id, payload) : await createUser(payload)
+      return avatar_file ? uploadUserAvatar(savedUser.id, avatar_file) : savedUser
+    },
     onSuccess: () => { closeForm(); queryClient.invalidateQueries({ queryKey: ['users', role] }) },
   })
 
@@ -88,7 +85,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
       password: '',
       password_confirmation: '',
       phone: user.phone ?? '',
-      avatar_url: user.avatar_url ?? '',
+      avatar_file: null,
       bio: user.bio ?? '',
       specialty: user.specialty ?? '',
       academic_id: user.academic_id ?? '',
@@ -101,7 +98,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
     `${user.name} ${user.email} ${user.academic_id ?? ''} ${user.specialty ?? ''}`.toLowerCase().includes(search.toLowerCase()),
   )
   const categories = categoriesQuery.data ?? []
-  const updateField = (field: keyof FormState, value: string) => setForm((current) => ({ ...current, [field]: value }))
+  const updateField = (field: keyof FormState, value: string | File | null) => setForm((current) => ({ ...current, [field]: value }))
 
   if (usersQuery.isLoading || (isTeacher && categoriesQuery.isLoading))
     return <div className="py-20 text-center text-ink-400">جاري تحميل {label}...</div>
@@ -177,6 +174,11 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
               className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm text-ink-900 outline-none transition focus-ring"
             />
           ))}
+
+          <label className="flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-ink-300 bg-ink-50 px-4 py-3 text-sm text-ink-600 md:col-span-2">
+            <span>{form.avatar_file?.name ?? (editing?.avatar_url ? 'تغيير صورة الملف الشخصي' : 'رفع صورة الملف الشخصي')}</span>
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => updateField('avatar_file', event.target.files?.[0] ?? null)} />
+          </label>
 
           {isTeacher && (
             <select

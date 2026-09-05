@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Pencil, Trash2, BookOpen, Layers, X } from 'lucide-react'
 
-import { createCourse, createCourseCategory, deleteCourse, deleteCourseCategory, fetchCourseCategories, fetchCourseInstructors, fetchCourses, updateCourse, updateCourseCategory, type CourseRecord } from '../../api/management'
+import { createCourse, createCourseCategory, deleteCourse, deleteCourseCategory, fetchCourseCategories, fetchCourseInstructors, fetchCourses, updateCourse, updateCourseCategory, uploadCourseCategoryImage, uploadCourseThumbnail, type CourseRecord } from '../../api/management'
 
 type CourseForm = {
   title: string
@@ -14,6 +14,7 @@ type CourseForm = {
   max_students: string
   price: string
   thumbnail_url: string
+  thumbnail_file: File | null
   course_type: CourseRecord['course_type']
 }
 
@@ -27,6 +28,7 @@ const emptyForm: CourseForm = {
   max_students: '',
   price: '0',
   thumbnail_url: '',
+  thumbnail_file: null,
   course_type: 'technical',
 }
 
@@ -48,6 +50,7 @@ export default function CoursesPage() {
   const [categoryName, setCategoryName] = useState('')
   const [categoryDescription, setCategoryDescription] = useState('')
   const [editingCategory, setEditingCategory] = useState<number | null>(null)
+  const [categoryImageFile, setCategoryImageFile] = useState<File | null>(null)
 
   const coursesQuery = useQuery({ queryKey: ['courses'], queryFn: fetchCourses })
   const categoriesQuery = useQuery({ queryKey: ['course-categories'], queryFn: fetchCourseCategories })
@@ -60,39 +63,32 @@ export default function CoursesPage() {
   const closeForm = () => { setFormOpen(false); setEditing(null); setForm(emptyForm) }
 
   const saveMutation = useMutation({
-    mutationFn: () =>
-      editing
-        ? updateCourse(editing.id, {
-            ...form,
-            category_id: Number(form.category_id),
-            instructor_id: Number(form.instructor_id),
-            max_students: form.max_students ? Number(form.max_students) : null,
-            price: Number(form.price),
-          })
-        : createCourse({
-            ...form,
-            category_id: Number(form.category_id),
-            instructor_id: Number(form.instructor_id),
-            max_students: form.max_students ? Number(form.max_students) : null,
-            price: Number(form.price),
-          }),
+    mutationFn: async () => {
+      const { thumbnail_file, ...fields } = form
+      delete (fields as { thumbnail_url?: string }).thumbnail_url
+      const payload = { ...fields, category_id: Number(form.category_id), instructor_id: Number(form.instructor_id), max_students: form.max_students ? Number(form.max_students) : null, price: Number(form.price) }
+      const savedCourse = editing ? await updateCourse(editing.id, payload) : await createCourse(payload)
+      return thumbnail_file ? uploadCourseThumbnail(savedCourse.id, thumbnail_file) : savedCourse
+    },
     onSuccess: () => { closeForm(); queryClient.invalidateQueries({ queryKey: ['courses'] }) },
   })
 
   const deleteMutation = useMutation({ mutationFn: deleteCourse, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['courses'] }) })
   const categoryMutation = useMutation({
-    mutationFn: () =>
-      editingCategory
-        ? updateCourseCategory(editingCategory, { name: categoryName, description: categoryDescription })
-        : createCourseCategory({ name: categoryName, description: categoryDescription }),
+    mutationFn: async () => {
+      const savedCategory = editingCategory
+        ? await updateCourseCategory(editingCategory, { name: categoryName, description: categoryDescription })
+        : await createCourseCategory({ name: categoryName, description: categoryDescription })
+      return categoryImageFile ? uploadCourseCategoryImage(savedCategory.id, categoryImageFile) : savedCategory
+    },
     onSuccess: () => {
-      setCategoryName(''); setCategoryDescription(''); setEditingCategory(null)
+        setCategoryName(''); setCategoryDescription(''); setEditingCategory(null); setCategoryImageFile(null)
       queryClient.invalidateQueries({ queryKey: ['course-categories'] })
     },
   })
   const deleteCategoryMutation = useMutation({ mutationFn: deleteCourseCategory, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['course-categories'] }) })
 
-  const updateField = (field: keyof CourseForm, value: string) => setForm((current) => ({ ...current, [field]: value }))
+  const updateField = (field: keyof CourseForm, value: string | File | null) => setForm((current) => ({ ...current, [field]: value }))
   const openCreate = () => { setEditing(null); setForm(emptyForm); setFormOpen(true) }
   const openEdit = (course: CourseRecord) => {
     setEditing(course)
@@ -106,6 +102,7 @@ export default function CoursesPage() {
       max_students: course.max_students ? String(course.max_students) : '',
       price: String(course.price),
       thumbnail_url: course.thumbnail_url ?? '',
+      thumbnail_file: null,
       course_type: course.course_type,
     })
     setFormOpen(true)
@@ -197,7 +194,10 @@ export default function CoursesPage() {
 
           <input type="number" min="1" value={form.max_students} onChange={(event) => updateField('max_students', event.target.value)} placeholder="الحد الأقصى للطلاب" className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm outline-none focus-ring" />
           <input type="number" min="0" step="0.01" value={form.price} onChange={(event) => updateField('price', event.target.value)} placeholder="السعر" className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm outline-none focus-ring" />
-          <input type="url" value={form.thumbnail_url} onChange={(event) => updateField('thumbnail_url', event.target.value)} placeholder="رابط الصورة المصغرة" className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm outline-none focus-ring md:col-span-2" />
+          <label className="flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-ink-300 bg-ink-50 px-4 py-3 text-sm text-ink-600 md:col-span-2">
+            <span>{form.thumbnail_file?.name ?? (form.thumbnail_url ? 'تغيير صورة الكورس' : 'رفع صورة الكورس')}</span>
+            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => updateField('thumbnail_file', event.target.files?.[0] ?? null)} />
+          </label>
 
           {editing && (
             <select value={form.status} onChange={(event) => updateField('status', event.target.value)} className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm outline-none focus-ring">
@@ -297,9 +297,10 @@ export default function CoursesPage() {
           <span className="text-sm font-medium text-ink-400">{categories.length} تصنيف</span>
         </div>
 
-        <form onSubmit={(event) => { event.preventDefault(); categoryMutation.mutate() }} className="mb-6 grid gap-3 md:grid-cols-[1fr_2fr_auto]">
+        <form onSubmit={(event) => { event.preventDefault(); categoryMutation.mutate() }} className="mb-6 grid gap-3 md:grid-cols-[1fr_2fr_1fr_auto]">
           <input required value={categoryName} onChange={(event) => setCategoryName(event.target.value)} placeholder="اسم التصنيف" className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm outline-none focus-ring" />
           <input value={categoryDescription} onChange={(event) => setCategoryDescription(event.target.value)} placeholder="وصف التصنيف" className="rounded-xl border border-ink-200 bg-ink-50 px-4 py-3 text-sm outline-none focus-ring" />
+          <label className="flex cursor-pointer items-center rounded-xl border border-dashed border-ink-300 bg-ink-50 px-4 py-3 text-sm text-ink-600"><span className="truncate">{categoryImageFile?.name ?? 'صورة التصنيف'}</span><input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => setCategoryImageFile(event.target.files?.[0] ?? null)} /></label>
           <button disabled={categoryMutation.isPending} className="rounded-xl bg-ink-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ink-800 disabled:opacity-50">
             {editingCategory ? 'تحديث' : 'إضافة'}
           </button>

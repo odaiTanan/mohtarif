@@ -9,9 +9,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use App\Services\CloudinaryService;
 
 class UsersController extends Controller
 {
+    public function __construct(private readonly CloudinaryService $cloudinary) {}
+
     public function index(Request $request): JsonResponse
     {
         $role = $request->query('role');
@@ -118,5 +121,13 @@ class UsersController extends Controller
         return response()->json([
             'message' => 'تم حذف المستخدم بنجاح.',
         ]);
+    }
+
+    public function uploadAvatar(Request $request, User $user): JsonResponse
+    {
+        $data = $request->validate(['file' => ['required', 'file', 'max:10240', 'mimetypes:image/jpeg,image/png,image/webp']]);
+        $media = $this->cloudinary->upload($data['file'], 'users/'.$user->id);
+        $user->update(['avatar_url' => $media['url'], 'avatar_public_id' => $media['public_id']]);
+        return response()->json(['data' => UserResource::make($user->fresh()->load(['roles', 'permissions']))]);
     }
 }

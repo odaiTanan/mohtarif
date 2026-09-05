@@ -28,6 +28,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'avatar_url',
+        'avatar_public_id',
         'bio',
         'specialty',
         'academic_id',
@@ -79,5 +80,10 @@ class User extends Authenticatable
     public function teachingCategory()
     {
         return $this->belongsTo(CourseCategory::class, 'teaching_category_id');
+    }
+
+    public function instructedCourses(): HasMany
+    {
+        return $this->hasMany(Course::class, 'instructor_id');
     }
 }

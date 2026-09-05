@@ -24,7 +24,6 @@ export interface CreateUserPayload {
   password_confirmation: string
   role: 'admin' | 'teacher' | 'student'
   phone?: string
-  avatar_url?: string
   bio?: string
   specialty?: string
   academic_id?: string
@@ -39,7 +38,6 @@ export interface UpdateUserPayload {
   password_confirmation?: string
   role?: 'admin' | 'teacher' | 'student'
   phone?: string
-  avatar_url?: string
   bio?: string
   specialty?: string
   academic_id?: string
@@ -70,4 +68,11 @@ export async function updateUser(id: number, payload: UpdateUserPayload): Promis
 
 export async function deleteUser(id: number): Promise<void> {
   await axiosInstance.delete(`/users/${id}`)
+}
+
+export async function uploadUserAvatar(id: number, file: File): Promise<User> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await axiosInstance.post<{ data: User }>(`/users/${id}/avatar`, formData)
+  return response.data.data
 }

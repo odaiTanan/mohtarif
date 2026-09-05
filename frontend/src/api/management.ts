@@ -111,7 +111,17 @@ export interface CourseRecord {
   course_type: 'technical' | 'craft'
   enrollments_count?: number
   updated_at?: string
+  lessons_count?: number
+  workshops_count?: number
+  lectures_count?: number
+  lessons?: CourseLessonRecord[]
+  workshops?: CourseWorkshopRecord[]
+  lectures?: CourseLectureRecord[]
 }
+
+export interface CourseLessonRecord { id: number; title: string; description: string | null; video_url: string | null; sort_order: number; is_published: boolean }
+export interface CourseWorkshopRecord { id: number; title: string; description: string | null; image_url: string | null; scheduled_at: string | null; duration_minutes: number | null; sort_order: number }
+export interface CourseLectureRecord { id: number; title: string; description: string | null; meeting_url: string | null; recording_url: string | null; scheduled_at: string | null; duration_minutes: number | null; status: 'scheduled' | 'live' | 'completed' | 'cancelled' }
 
 export interface CourseCategoryRecord { id: number; name: string; slug: string; description?: string | null; courses_count?: number }
 export interface CourseInstructorRecord { id: number; name: string; email: string; avatar_url: string | null }
@@ -269,6 +279,12 @@ export function deleteCourse(id: number) {
   return axiosInstance.delete(`${API_ROUTES.MANAGEMENT.COURSES}/${id}`)
 }
 
+export function uploadCourseThumbnail(id: number, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return axiosInstance.post<{ data: CourseRecord }>(`${API_ROUTES.MANAGEMENT.COURSES}/${id}/media`, formData).then((r) => r.data.data)
+}
+
 export function fetchCourseInstructors(categoryId?: number) {
   return axiosInstance.get<{ data: CourseInstructorRecord[] }>(API_ROUTES.MANAGEMENT.COURSE_INSTRUCTORS, { params: categoryId ? { category_id: categoryId } : {} }).then((r) => r.data.data)
 }
@@ -289,6 +305,12 @@ export function deleteCourseCategory(id: number) {
   return axiosInstance.delete(`${API_ROUTES.MANAGEMENT.COURSE_CATEGORIES}/${id}`)
 }
 
+export function uploadCourseCategoryImage(id: number, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return axiosInstance.post(`${API_ROUTES.MANAGEMENT.COURSE_CATEGORIES}/${id}/image`, formData).then((r) => r.data.data)
+}
+
 export function fetchCertificates() {
   return fetchPaginated<CertificateRecord>(API_ROUTES.MANAGEMENT.CERTIFICATES)
 }
@@ -299,4 +321,32 @@ export function fetchAuditLogs() {
 
 export function fetchLookups() {
   return axiosInstance.get<LookupsResponse>(API_ROUTES.MANAGEMENT.LOOKUPS).then((r) => r.data)
+}
+
+export function fetchTeacherCourses() {
+  return fetchPaginated<CourseRecord>(API_ROUTES.TEACHER.COURSES)
+}
+
+export function fetchTeacherCourse(id: number) {
+  return axiosInstance.get<{ data: CourseRecord }>(API_ROUTES.TEACHER.COURSE(id)).then((r) => r.data.data)
+}
+
+export function uploadCourseMedia(id: number, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return axiosInstance.post<{ data: CourseRecord }>(API_ROUTES.TEACHER.MEDIA(id), formData).then((r) => r.data.data)
+}
+
+export function createCourseContent(id: number, type: 'lessons' | 'workshops' | 'lectures', payload: Record<string, unknown>) {
+  return axiosInstance.post(API_ROUTES.TEACHER[type.toUpperCase() as 'LESSONS' | 'WORKSHOPS' | 'LECTURES'](id), payload)
+}
+
+export function deleteCourseContent(id: number, type: 'lessons' | 'workshops' | 'lectures', contentId: number) {
+  return axiosInstance.delete(`${API_ROUTES.TEACHER[type.toUpperCase() as 'LESSONS' | 'WORKSHOPS' | 'LECTURES'](id)}/${contentId}`)
+}
+
+export function uploadCourseContentMedia(courseId: number, type: 'lessons' | 'workshops' | 'lectures', contentId: number, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return axiosInstance.post(API_ROUTES.TEACHER.CONTENT_MEDIA(courseId, type, contentId), formData).then((r) => r.data.data)
 }

@@ -14,6 +14,10 @@ const navItems = [
 export default function AdminSidebar() {
   const { user } = useAuth()
   const logoutMutation = useLogout()
+  const isTeacher = user?.roles?.some((role) => role.name.toLowerCase() === 'teacher')
+  const visibleNavItems = isTeacher
+    ? [{ to: '/dashboard', label: 'الرئيسية', icon: LayoutDashboard, end: true }, { to: '/dashboard/my-courses', label: 'كورساتي', icon: BookOpen }]
+    : navItems
 
   return (
     <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col glass-dark border-l border-white/10 text-white">
@@ -32,7 +36,7 @@ export default function AdminSidebar() {
       <nav className="mt-2 flex-1 px-4">
         <p className="px-3 pb-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-ink-400">القائمة</p>
         <ul className="space-y-1.5">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const Icon = item.icon
             return (
               <li key={item.to}>

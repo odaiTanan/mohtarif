@@ -11,9 +11,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Services\CloudinaryService;
 
 class CoursesController extends Controller
 {
+    public function __construct(private readonly CloudinaryService $cloudinary) {}
+
     public function index(): mixed
     {
         return CourseResource::collection(Course::query()->with(['category', 'instructor'])->withCount('enrollments')->latest()->paginate(15));
@@ -54,6 +57,14 @@ class CoursesController extends Controller
     {
         DB::transaction(fn () => $course->delete());
         return response()->json(['message' => 'تم حذف الكورس بنجاح.']);
+    }
+
+    public function uploadMedia(Request $request, Course $course): CourseResource
+    {
+        $data = $request->validate(['file' => ['required', 'file', 'max:51200', 'mimetypes:image/jpeg,image/png,image/webp']]);
+        $media = $this->cloudinary->upload($data['file'], 'courses/'.$course->id);
+        $course->update(['thumbnail_url' => $media['url'], 'thumbnail_public_id' => $media['public_id']]);
+        return new CourseResource($course->fresh()->load(['category', 'instructor'])->loadCount('enrollments'));
     }
 
     private function validated(Request $request, bool $partial = false): array
