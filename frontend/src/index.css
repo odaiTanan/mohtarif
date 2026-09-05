@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+@theme {
+  --color-academy-50: #fef9ee;
+  --color-academy-100: #fdf0d4;
+  --color-academy-200: #fadea8;
+  --color-academy-300: #f7c571;
+  --color-academy-400: #f3a93b;
+  --color-academy-500: #f09018;
+  --color-academy-600: #e2740c;
+  --color-academy-700: #bc560b;
+  --color-academy-800: #974411;
+  --color-academy-900: #7a3912;
+
+  --color-teal-academy-50: #effcf9;
+  --color-teal-academy-100: #cbf7f0;
+  --color-teal-academy-200: #99eee2;
+  --color-teal-academy-300: #5dddd0;
+  --color-teal-academy-400: #2bc6bb;
+  --color-teal-academy-500: #15a89e;
+  --color-teal-academy-600: #0e8680;
+  --color-teal-academy-700: #0f6b69;
+  --color-teal-academy-800: #105656;
+  --color-teal-academy-900: #114848;
+
+  --color-ink-50: #f6f7f9;
+  --color-ink-100: #eceef2;
+  --color-ink-200: #d5dae2;
+  --color-ink-300: #b0bac9;
+  --color-ink-400: #8595ab;
+  --color-ink-500: #677692;
+  --color-ink-600: #525f78;
+  --color-ink-700: #434e62;
+  --color-ink-800: #3a4253;
+  --color-ink-900: #1e2330;
+  --color-ink-950: #131721;
+}
+
 :root {
   font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
   --najiz-bg: #f8fafc;
@@ -30,4 +66,106 @@ body {
 
 #root {
   min-height: 100vh;
+}
+
+/* ── Premium scrollbar ── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-ink-300);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-400);
+}
+
+/* ── Keyframe animations ── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(240, 144, 24, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(240, 144, 24, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(240, 144, 24, 0); }
+}
+
+.animate-fade-in-up { animation: fade-in-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-fade-in { animation: fade-in 0.5s ease-out both; }
+.animate-scale-in { animation: scale-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-pulse-ring { animation: pulse-ring 2s infinite; }
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
+
+/* ── Glassmorphism ── */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+.glass-dark {
+  background: rgba(19, 23, 33, 0.82);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* ── Premium card hover ── */
+.card-hover {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px -12px rgba(30, 35, 48, 0.18);
+}
+
+/* ── Gradient text ── */
+.gradient-text-academy {
+  background: linear-gradient(135deg, #f09018 0%, #e2740c 50%, #0e8680 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── Shimmer loading ── */
+.shimmer {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ── Smooth focus ring ── */
+.focus-ring {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.focus-ring:focus {
+  outline: none;
+  border-color: var(--color-academy-400);
+  box-shadow: 0 0 0 4px rgba(240, 144, 24, 0.12);
 }
