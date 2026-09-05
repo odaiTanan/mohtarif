@@ -4,10 +4,10 @@ import { BookOpen, GraduationCap, Users, TrendingUp, ArrowLeft, ClipboardList, L
 import { useAuth } from '../hooks/useAuth'
 
 const stats = [
-  { label: 'الكورسات', value: '—', icon: BookOpen, color: 'from-academy-400 to-academy-600', bg: 'bg-academy-50', text: 'text-academy-700' },
-  { label: 'الطلاب', value: '—', icon: GraduationCap, color: 'from-teal-academy-400 to-teal-academy-600', bg: 'bg-teal-academy-50', text: 'text-teal-academy-700' },
-  { label: 'المدرسين', value: '—', icon: Users, color: 'from-ink-400 to-ink-600', bg: 'bg-ink-100', text: 'text-ink-700' },
-  { label: 'النشاط', value: '—', icon: TrendingUp, color: 'from-academy-500 to-teal-academy-500', bg: 'bg-academy-50', text: 'text-academy-700' },
+  { label: 'الكورسات', value: '—', icon: BookOpen, bg: 'bg-blue-50', text: 'text-blue-700' },
+  { label: 'الطلاب', value: '—', icon: GraduationCap, bg: 'bg-blue-50', text: 'text-blue-700' },
+  { label: 'المدرسين', value: '—', icon: Users, bg: 'bg-ink-100', text: 'text-ink-700' },
+  { label: 'النشاط', value: '—', icon: TrendingUp, bg: 'bg-blue-50', text: 'text-blue-700' },
 ]
 
 const quickActions = [
@@ -23,14 +23,10 @@ export default function DashboardPage() {
     <main className="space-y-6">
       {/* Hero section */}
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="relative overflow-hidden rounded-3xl border border-ink-200/60 bg-gradient-to-br from-ink-900 via-ink-900 to-ink-800 p-8 shadow-2xl shadow-ink-900/20">
-          {/* Decorative gradient orbs */}
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-academy-500/20 blur-3xl" />
-          <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-teal-academy-500/15 blur-3xl" />
-
+        <div className="relative overflow-hidden rounded-3xl border border-ink-200/60 bg-ink-900 p-8 shadow-2xl shadow-ink-900/20">
           <div className="relative">
-            <span className="inline-flex items-center gap-2 rounded-full border border-academy-400/30 bg-academy-400/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-academy-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-academy-400 animate-pulse-ring" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-1.5 text-xs font-semibold tracking-wide text-blue-400">
+              <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse-ring" />
               لوحة التحكم
             </span>
 
@@ -49,14 +45,14 @@ export default function DashboardPage() {
                   <Link
                     key={action.label}
                     to={action.href}
-                    className={`group rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-academy-400/30 hover:bg-white/10 animate-fade-in-up stagger-${i + 1}`}
+                    className={`group rounded-2xl border border-white/10 bg-white/5 p-4 transition-all duration-300 hover:border-blue-500/30 hover:bg-white/10 animate-fade-in-up stagger-${i + 1}`}
                   >
-                    <div className="flex items-center gap-2 text-academy-400">
+                    <div className="flex items-center gap-2 text-blue-400">
                       <Icon size={18} className="transition-transform group-hover:scale-110" />
                       <p className="text-xs font-medium text-ink-400">{action.label}</p>
                     </div>
                     <p className="mt-2.5 text-sm font-semibold text-white">{action.desc}</p>
-                    <div className="mt-3 flex items-center gap-1 text-xs text-academy-400 opacity-0 transition-opacity group-hover:opacity-100">
+                    <div className="mt-3 flex items-center gap-1 text-xs text-blue-400 opacity-0 transition-opacity group-hover:opacity-100">
                       افتح <ArrowLeft size={12} className="rotate-180" />
                     </div>
                   </Link>
@@ -70,10 +66,10 @@ export default function DashboardPage() {
         <aside className="rounded-3xl border border-ink-200/60 bg-white p-6 shadow-lg shadow-ink-200/40 card-hover">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-academy-400 to-teal-academy-600 text-2xl font-bold text-white shadow-lg shadow-teal-academy-500/20">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 text-2xl font-bold text-white shadow-lg shadow-blue-600/20">
                 {user?.name?.charAt(0) ?? '؟'}
               </div>
-              <span className="absolute -bottom-1 -left-1 h-5 w-5 rounded-full border-2 border-white bg-emerald-400" />
+              <span className="absolute -bottom-1 -left-1 h-5 w-5 rounded-full border-2 border-white bg-blue-500" />
             </div>
             <div>
               <p className="text-xs font-medium text-ink-400">الحساب</p>

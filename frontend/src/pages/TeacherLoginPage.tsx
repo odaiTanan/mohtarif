@@ -20,7 +20,7 @@ export default function TeacherLoginPage() {
     <main className="mx-auto flex min-h-screen max-w-6xl items-center px-6 py-10 lg:px-10" dir="rtl" lang="ar">
       <div className="grid w-full gap-8 lg:grid-cols-2">
         <section className="space-y-5">
-          <span className="inline-flex rounded-full border border-green-500/30 bg-green-500/10 px-4 py-2 text-sm text-green-600">
+          <span className="inline-flex rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm text-blue-600">
             دخول المدرسين
           </span>
           <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
@@ -39,7 +39,7 @@ export default function TeacherLoginPage() {
             <label className="block space-y-2">
               <span className="text-sm text-slate-700">البريد الإلكتروني</span>
               <input
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-green-500/50"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500/50"
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
@@ -49,7 +49,7 @@ export default function TeacherLoginPage() {
             <label className="block space-y-2">
               <span className="text-sm text-slate-700">كلمة المرور</span>
               <input
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-green-500/50"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500/50"
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
@@ -58,7 +58,7 @@ export default function TeacherLoginPage() {
           </div>
 
           <button
-            className="mt-6 w-full rounded-2xl bg-green-600 px-4 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
             disabled={loginMutation.isPending}
           >

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Pencil, Trash2, X, GraduationCap, Users } from 'lucide-react'
 
-import { createUser, deleteUser, fetchUsers, updateUser, uploadUserAvatar, type User } from '../../api/users'
+import { createUser, deleteUser, fetchUsers, updateUser, type User } from '../../api/users'
 import { fetchCourseCategories } from '../../api/management'
 
 type ManagedRole = 'teacher' | 'student'
@@ -12,7 +12,7 @@ type FormState = {
   password: string
   password_confirmation: string
   phone: string
-  avatar_file: File | null
+  avatar_url: string
   bio: string
   specialty: string
   academic_id: string
@@ -26,7 +26,7 @@ const emptyForm: FormState = {
   password: '',
   password_confirmation: '',
   phone: '',
-  avatar_file: null,
+  avatar_url: '',
   bio: '',
   specialty: '',
   academic_id: '',
@@ -40,6 +40,7 @@ const formFields: ReadonlyArray<{ field: keyof FormState; label: string; isPassw
   { field: 'phone', label: 'رقم الهاتف' },
   { field: 'academic_id', label: 'الرقم الأكاديمي' },
   { field: 'specialty', label: 'التخصص' },
+  { field: 'avatar_url', label: 'رابط الصورة' },
   { field: 'password', label: 'كلمة المرور', isPassword: true },
   { field: 'password_confirmation', label: 'تأكيد كلمة المرور', isPassword: true },
 ]
@@ -59,18 +60,20 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
   const closeForm = () => { setEditing(null); setForm(emptyForm); setIsFormOpen(false) }
 
   const saveMutation = useMutation({
-    mutationFn: async () => {
-      const { avatar_file, ...fields } = form
-      const payload = {
-        ...fields,
-        teaching_category_id: form.teaching_category_id ? Number(form.teaching_category_id) : undefined,
-        password: form.password || undefined,
-        password_confirmation: form.password_confirmation || undefined,
-        role,
-      }
-      const savedUser = editing ? await updateUser(editing.id, payload) : await createUser(payload)
-      return avatar_file ? uploadUserAvatar(savedUser.id, avatar_file) : savedUser
-    },
+    mutationFn: () =>
+      editing
+        ? updateUser(editing.id, {
+            ...form,
+            teaching_category_id: form.teaching_category_id ? Number(form.teaching_category_id) : undefined,
+            password: form.password || undefined,
+            password_confirmation: form.password_confirmation || undefined,
+            role,
+          })
+        : createUser({
+            ...form,
+            teaching_category_id: form.teaching_category_id ? Number(form.teaching_category_id) : undefined,
+            role,
+          }),
     onSuccess: () => { closeForm(); queryClient.invalidateQueries({ queryKey: ['users', role] }) },
   })
 
@@ -85,7 +88,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
       password: '',
       password_confirmation: '',
       phone: user.phone ?? '',
-      avatar_file: null,
+      avatar_url: user.avatar_url ?? '',
       bio: user.bio ?? '',
       specialty: user.specialty ?? '',
       academic_id: user.academic_id ?? '',
@@ -98,7 +101,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
     `${user.name} ${user.email} ${user.academic_id ?? ''} ${user.specialty ?? ''}`.toLowerCase().includes(search.toLowerCase()),
   )
   const categories = categoriesQuery.data ?? []
-  const updateField = (field: keyof FormState, value: string | File | null) => setForm((current) => ({ ...current, [field]: value }))
+  const updateField = (field: keyof FormState, value: string) => setForm((current) => ({ ...current, [field]: value }))
 
   if (usersQuery.isLoading || (isTeacher && categoriesQuery.isLoading))
     return <div className="py-20 text-center text-ink-400">جاري تحميل {label}...</div>
@@ -106,7 +109,6 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
     return <div className="py-20 text-center text-rose-600">تعذر تحميل بيانات {label}</div>
 
   const Icon = isTeacher ? Users : GraduationCap
-  const accentColor = isTeacher ? 'teal-academy' : 'academy'
 
   return (
     <div className="space-y-6">
@@ -114,10 +116,10 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
       <header className="flex flex-col justify-between gap-4 md:flex-row md:items-end animate-fade-in-up">
         <div>
           <div className="flex items-center gap-2">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isTeacher ? 'bg-teal-academy-50 text-teal-academy-600' : 'bg-academy-50 text-academy-600'}`}>
+            <div className={`flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600`}>
               <Icon size={20} />
             </div>
-            <p className={`text-sm font-semibold ${isTeacher ? 'text-teal-academy-600' : 'text-academy-600'}`}>إدارة المستخدمين</p>
+            <p className="text-sm font-semibold text-blue-600">إدارة المستخدمين</p>
           </div>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink-900">{label}</h1>
           <p className="mt-2 text-sm text-ink-500">ملفات كاملة وحسابات قابلة للإدارة</p>
@@ -125,11 +127,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
         <button
           type="button"
           onClick={() => { setEditing(null); setForm({ ...emptyForm }); setIsFormOpen(true) }}
-          className={`flex items-center gap-2 rounded-2xl bg-gradient-to-l px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-105 ${
-            isTeacher
-              ? 'from-teal-academy-500 to-teal-academy-600 shadow-teal-academy-500/25'
-              : 'from-academy-500 to-academy-600 shadow-academy-500/25'
-          }`}
+          className="flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700"
         >
           <Plus size={18} />
           إضافة {isTeacher ? 'معلم' : 'طالب'}
@@ -175,11 +173,6 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
             />
           ))}
 
-          <label className="flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-ink-300 bg-ink-50 px-4 py-3 text-sm text-ink-600 md:col-span-2">
-            <span>{form.avatar_file?.name ?? (editing?.avatar_url ? 'تغيير صورة الملف الشخصي' : 'رفع صورة الملف الشخصي')}</span>
-            <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(event) => updateField('avatar_file', event.target.files?.[0] ?? null)} />
-          </label>
-
           {isTeacher && (
             <select
               required
@@ -211,9 +204,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
           <div className="flex gap-3 md:col-span-2">
             <button
               disabled={saveMutation.isPending}
-              className={`rounded-xl bg-gradient-to-l px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-105 disabled:opacity-50 ${
-                isTeacher ? 'from-teal-academy-500 to-teal-academy-600 shadow-teal-academy-500/25' : 'from-academy-500 to-academy-600 shadow-academy-500/25'
-              }`}
+              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition hover:bg-blue-700 disabled:opacity-50"
             >
               {saveMutation.isPending ? 'جاري الحفظ...' : 'حفظ البيانات'}
             </button>
@@ -259,7 +250,7 @@ export default function UserManagementPage({ role }: { role: ManagedRole }) {
                   <td className="px-5 py-4">
                     <span className={`inline-block rounded-full border px-3 py-1 text-xs font-semibold ${
                       user.status === 'active'
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        ? 'border-blue-200 bg-blue-50 text-blue-700'
                         : 'border-ink-200 bg-ink-100 text-ink-500'
                     }`}>
                       {user.status === 'active' ? 'نشط' : 'غير نشط'}
